@@ -1,8 +1,8 @@
-import { Elysia } from "elysia";
+import { Elysia } from 'elysia'
 
 const app = new Elysia()
-    .get("/", () => "Hello World")
+  .get('/', () => 'Hello World')
 
 app.listen(3000, () => {
-    console.log("Server is running on port 3000");
-});
+  console.log('Server is running on port 3000')
+})
