@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import { auth } from "../auth";
 
 export const authenticateFromLink = new Elysia().use(auth).get("/auth-links/authenticate", 
-    async ({ query, jwt: { sign }, redirect, cookie: { auth } }) => {
+    async ({ query, redirect, signUser }) => {
         const { code, redirect: redirectUrl } = query
 
         const [authLinkFromCode] = await db.select().from(authLinks).where(eq(authLinks.code, code))
@@ -23,16 +23,9 @@ export const authenticateFromLink = new Elysia().use(auth).get("/auth-links/auth
 
         const [managedRestaurant] = await db.select().from(restaurants).where(eq(restaurants.managerId, authLinkFromCode.userId))
 
-        const token = await sign({
+        await signUser({
             sub: authLinkFromCode.userId,
             restaurantId: managedRestaurant?.id,
-        })
-
-        auth.set({
-            value: token,
-            httpOnly: true,
-            maxAge: 60 * 60 * 24 * 7, // 7 days
-            path: '/',
         })
         
         await db.delete(authLinks).where(eq(authLinks.code, code))
